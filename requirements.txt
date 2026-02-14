@@ -1,6 +1,10 @@
-# No external dependencies required for core functionality
-# The tool uses only Python standard library + CLI tools (aws, terraform, gh)
-#
-# Optional dependencies for enhanced features:
-# python-hcl2>=4.0.0    # For advanced HCL parsing (if needed)
-# python-dotenv>=1.0.0  # For .env file loading
+# Core dependencies (stdlib only - no external deps required)
+# The tool uses Python standard library + CLI tools (aws, terraform, gh)
+
+# Development dependencies
+# Install with: pip install -r requirements.txt
+ruff>=0.8.0
+mypy>=1.13.0
+pytest>=8.0.0
+pytest-cov>=6.0.0
+bandit[toml]>=1.8.0

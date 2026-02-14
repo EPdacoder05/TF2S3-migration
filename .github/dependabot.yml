@@ -1,0 +1,31 @@
+# Adapted from: https://github.com/EPdacoder05/System-Design-Engineering-Universal-Reference/tree/main/cicd
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "[deps]"
+      prefix-development: "[deps-dev]"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "python"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "[deps]"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"

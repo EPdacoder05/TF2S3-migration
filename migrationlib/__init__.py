@@ -9,12 +9,7 @@ __version__ = "1.0.0"
 __author__ = "EPdacoder05"
 
 # Export all submodules for convenient imports
-from . import config
-from . import tf_ops
-from . import gh_ops
-from . import state_ops
-from . import utils
-from . import validation
+from . import config, gh_ops, state_ops, tf_ops, utils, validation
 
 __all__ = [
     "config",

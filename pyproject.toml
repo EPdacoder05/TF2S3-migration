@@ -1,0 +1,31 @@
+[project]
+name = "tf2s3-migration"
+version = "1.0.0"
+description = "Terraform Cloud to S3 Backend Migration Tool"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "S", "B", "A", "C4", "SIM"]
+ignore = ["S603", "S607", "S108"]  # subprocess calls are intentional in this tool
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # allow assert in tests
+"scripts/pii_scanner.py" = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
