@@ -1,0 +1,66 @@
+# Environment
+.env
+*.env.local
+.env.*
+!.env.example
+
+# Logs
+migration_logs/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.Python
+*.egg
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# BFG Repo Cleaner
+bfg.jar
+*.bfg-report/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfstate.*
+.terraform.lock.hcl
+terraform.tfvars
+*.auto.tfvars
+
+# Migration working directory
+migration_work/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
