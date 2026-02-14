@@ -120,7 +120,6 @@ def update_module_sources(repo_path: str, org: str) -> int:
 
             def replace_source(match, file_content=content):
                 nonlocal update_count
-                match.group(1)
                 module_name = match.group(2)
                 provider = match.group(3)
 
