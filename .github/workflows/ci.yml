@@ -79,7 +79,7 @@ jobs:
       
       - name: Upload coverage reports
         if: matrix.python-version == '3.12'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-reports
           path: coverage.xml
@@ -103,7 +103,7 @@ jobs:
       
       - name: Upload scan results
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: pii-scan-results
           path: pii-scan-results.txt
