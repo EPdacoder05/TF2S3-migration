@@ -1,0 +1,35 @@
+name: PII Scanner
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  scan:
+    name: Scan for PII and Sensitive Data
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      
+      - name: Run PII Scanner
+        run: |
+          echo "Running PII scanner..."
+          python scripts/pii_scanner.py
+      
+      - name: Upload scan results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pii-scan-results
+          path: pii-scan-results.txt
+          retention-days: 90
