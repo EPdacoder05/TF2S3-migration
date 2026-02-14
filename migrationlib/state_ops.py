@@ -212,8 +212,8 @@ def backup_state_locally(repo_path: str, backup_dir: str, dry_run: bool = False)
         
         if result and result.returncode == 0:
             # Save state to backup file
-            import datetime
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            from datetime import datetime as dt
+            timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
             repo_name = os.path.basename(repo_path)
             backup_file = os.path.join(backup_dir, f"{repo_name}_state_{timestamp}.json")
             

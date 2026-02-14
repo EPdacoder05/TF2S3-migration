@@ -364,21 +364,22 @@ def get_file_size(filepath: str) -> int:
         return 0
 
 
-def format_file_size(bytes: int) -> str:
+def format_file_size(size_bytes: int) -> str:
     """
     Format file size in human-readable format.
     
     Args:
-        bytes: Size in bytes
+        size_bytes: Size in bytes
         
     Returns:
         Formatted size string (e.g., "1.5 MB")
     """
+    size = float(size_bytes)
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-        if bytes < 1024.0:
-            return f"{bytes:.1f} {unit}"
-        bytes /= 1024.0
-    return f"{bytes:.1f} PB"
+        if size < 1024.0:
+            return f"{size:.1f} {unit}"
+        size /= 1024.0
+    return f"{size:.1f} PB"
 
 
 class ProgressTracker:

@@ -18,7 +18,7 @@ import os
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 # Add migrationlib to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -160,7 +160,7 @@ def migrate_repository(
     dry_run: bool,
     skip_version_check: bool,
     auto_commit: bool
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Execute 12-step migration pipeline for a single repository.
     
