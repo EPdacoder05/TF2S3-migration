@@ -194,7 +194,7 @@ def migrate_repository(
     Returns:
         Dict with migration results
     """
-    result = {
+    result: dict[str, Any] = {
         'repo': repo_name,
         'success': False,
         'steps_completed': [],
@@ -214,6 +214,11 @@ def migrate_repository(
             result['errors'].append("Failed to clone repository")
             return result
         result['steps_completed'].append("clone")
+
+        # Ensure repo_path is not None for type checker
+        if repo_path is None:
+            result['errors'].append("Repository path is None")
+            return result
 
         # Step 2: Create migration branch
         logger.info("[2/12] Creating migration branch...")

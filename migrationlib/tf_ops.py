@@ -118,7 +118,7 @@ def update_module_sources(repo_path: str, org: str) -> int:
             # Example: app.terraform.io/your-org/project-factory/aws
             tfc_pattern = r'source\s*=\s*"app\.terraform\.io/([^/]+)/([^/]+)/([^"]+)"'
 
-            def replace_source(match):
+            def replace_source(match, file_content=content):
                 nonlocal update_count
                 match.group(1)
                 module_name = match.group(2)
@@ -127,8 +127,8 @@ def update_module_sources(repo_path: str, org: str) -> int:
                 # Look for version in the surrounding context
                 # Search for version = "X.Y.Z" within the next 200 characters
                 start_pos = match.end()
-                context = content[start_pos:start_pos + 200]
-                version_match = re.search(r'version\s*=\s*"([^"]+)"', context)
+                search_context = file_content[start_pos:start_pos + 200]
+                version_match = re.search(r'version\s*=\s*"([^"]+)"', search_context)
 
                 version = version_match.group(1) if version_match else "main"
                 ref = f"v{version}" if not version.startswith("v") and version != "main" else version
@@ -256,8 +256,8 @@ def parse_version(version_str: str) -> tuple[int, ...]:
     try:
         parts = [int(x) for x in version_str.split('.')]
         return tuple(parts)
-    except ValueError:
-        raise ValueError(f"Invalid version format: {version_str}")
+    except ValueError as e:
+        raise ValueError(f"Invalid version format: {version_str}") from e
 
 
 def list_terraform_files(repo_path: str) -> list[str]:

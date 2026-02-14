@@ -359,7 +359,7 @@ def get_file_size(filepath: str) -> int:
     """
     try:
         return os.path.getsize(filepath)
-    except:
+    except OSError:
         return 0
 
 
