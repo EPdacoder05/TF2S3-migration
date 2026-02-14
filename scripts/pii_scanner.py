@@ -10,14 +10,12 @@ Exit codes:
   1 - Findings detected (potential security issues)
 """
 
-import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 # Comprehensive PII and sensitive data patterns
-PII_PATTERNS: Dict[str, str] = {
+PII_PATTERNS: dict[str, str] = {
     "AWS Account ID": r'\b\d{12}\b',
     "AWS Access Key": r'AKIA[0-9A-Z]{16}',
     "AWS Secret Key": r'(?i)aws_secret_access_key\s*=\s*\S+',
@@ -28,7 +26,10 @@ PII_PATTERNS: Dict[str, str] = {
     "Private Key": r'-----BEGIN (?:RSA |EC )?PRIVATE KEY-----',
     "Generic API Key": r'(?i)(?:api[_-]?key|apikey)\s*[:=]\s*["\']?\w{20,}',
     "Generic Secret": r'(?i)(?:secret|password|passwd|pwd)\s*[:=]\s*["\']?\S{8,}',
-    "IP Address (Private)": r'\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b',
+    "IP Address (Private)": (
+        r'\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}'
+        r'|192\.168\.\d{1,3}\.\d{1,3})\b'
+    ),
     "Email Address": r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
     "Slack Webhook": r'https://hooks\.slack\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[a-zA-Z0-9]+',
     "JWT Token": r'eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+',
@@ -39,7 +40,7 @@ PII_PATTERNS: Dict[str, str] = {
 }
 
 # Additional patterns for common sensitive data
-ADDITIONAL_PATTERNS: Dict[str, str] = {
+ADDITIONAL_PATTERNS: dict[str, str] = {
     "Credit Card": r'\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b',
     "SSN": r'\b\d{3}-\d{2}-\d{4}\b',
     "Phone Number": r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b',
@@ -113,11 +114,11 @@ WHITELIST_PATTERNS = [
 
 class PIIScanner:
     """Scanner for PII and sensitive data in files."""
-    
+
     def __init__(self, root_dir: str = "."):
         """Initialize scanner with root directory."""
         self.root_dir = Path(root_dir).resolve()
-        self.findings: List[Tuple[str, str, int, str, str]] = []
+        self.findings: list[tuple[str, str, int, str, str]] = []
         self.files_scanned = 0
         self.compiled_patterns = {
             name: re.compile(pattern)
@@ -126,42 +127,39 @@ class PIIScanner:
         self.compiled_whitelist = [
             re.compile(pattern) for pattern in WHITELIST_PATTERNS
         ]
-    
+
     def should_skip_file(self, file_path: Path) -> bool:
         """Check if file should be skipped."""
         # Check if in excluded directory
         for excluded_dir in EXCLUDED_DIRS:
             if excluded_dir in file_path.parts:
                 return True
-        
+
         # Check file extension
         if file_path.suffix in EXCLUDED_EXTENSIONS:
             return True
-        
+
         # Skip binary files
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 f.read(1024)  # Test read
         except (UnicodeDecodeError, PermissionError):
             return True
-        
+
         return False
-    
+
     def is_whitelisted(self, match: str) -> bool:
         """Check if match is in whitelist (known safe pattern)."""
-        for pattern in self.compiled_whitelist:
-            if pattern.search(match):
-                return True
-        return False
-    
+        return any(pattern.search(match) for pattern in self.compiled_whitelist)
+
     def scan_file(self, file_path: Path):
         """Scan a single file for PII patterns."""
         # Skip the PII scanner itself to avoid false positives from pattern definitions
         if file_path.name == "pii_scanner.py":
             return
-        
+
         try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            with open(file_path, encoding='utf-8', errors='ignore') as f:
                 for line_num, line in enumerate(f, 1):
                     # Skip lines that are clearly pattern definitions or examples in docs
                     if any(marker in line for marker in [
@@ -169,18 +167,18 @@ class PIIScanner:
                         'Pattern definitions', 'Example:', 'e.g.,'
                     ]):
                         continue
-                    
+
                     for pattern_name, pattern_re in self.compiled_patterns.items():
                         for match in pattern_re.finditer(line):
                             matched_text = match.group(0)
-                            
+
                             # Skip if whitelisted
                             if self.is_whitelisted(matched_text):
                                 continue
-                            
+
                             # Redact sensitive parts of the match
                             redacted = self.redact_match(matched_text)
-                            
+
                             # Store finding
                             rel_path = file_path.relative_to(self.root_dir)
                             self.findings.append((
@@ -190,40 +188,40 @@ class PIIScanner:
                                 matched_text,
                                 redacted
                             ))
-        
+
         except Exception as e:
             print(f"Error scanning {file_path}: {e}", file=sys.stderr)
-    
+
     def redact_match(self, text: str) -> str:
         """Redact sensitive parts of matched text for display."""
         if len(text) <= 8:
             return "[REDACTED]"
-        
+
         # Show first and last 4 characters
         return f"{text[:4]}...{text[-4:]}"
-    
+
     def scan_directory(self):
         """Recursively scan directory for PII."""
         print(f"🔍 Scanning directory: {self.root_dir}")
         print(f"📋 Using {len(ALL_PATTERNS)} detection patterns")
         print("")
-        
+
         for file_path in self.root_dir.rglob("*"):
             if not file_path.is_file():
                 continue
-            
+
             if self.should_skip_file(file_path):
                 continue
-            
+
             self.scan_file(file_path)
             self.files_scanned += 1
-            
+
             # Progress indicator
             if self.files_scanned % 100 == 0:
                 print(f"  Scanned {self.files_scanned} files...", end='\r')
-        
+
         print(f"  Scanned {self.files_scanned} files.    ")
-    
+
     def print_findings(self):
         """Print findings in a readable format."""
         if not self.findings:
@@ -231,38 +229,38 @@ class PIIScanner:
             print("✅ No PII or sensitive data detected!")
             print("")
             return
-        
+
         print("")
         print(f"❌ Found {len(self.findings)} potential security issues:")
         print("")
-        
+
         # Group findings by file
-        findings_by_file: Dict[str, List] = {}
+        findings_by_file: dict[str, list] = {}
         for file_path, pattern, line_num, match, redacted in self.findings:
             if file_path not in findings_by_file:
                 findings_by_file[file_path] = []
             findings_by_file[file_path].append((pattern, line_num, match, redacted))
-        
+
         # Print grouped findings
         for file_path, file_findings in sorted(findings_by_file.items()):
             print(f"📄 {file_path}")
-            for pattern, line_num, match, redacted in file_findings:
+            for pattern, line_num, _match, redacted in file_findings:
                 print(f"   Line {line_num:4d}: {pattern:25s} → {redacted}")
             print("")
-        
+
         print("=" * 80)
         print(f"Total findings: {len(self.findings)}")
         print("=" * 80)
         print("")
         print("⚠️  Please review these findings and remove any actual sensitive data.")
         print("")
-    
-    def generate_summary(self) -> Dict:
+
+    def generate_summary(self) -> dict:
         """Generate summary statistics."""
-        pattern_counts: Dict[str, int] = {}
+        pattern_counts: dict[str, int] = {}
         for _, pattern, _, _, _ in self.findings:
             pattern_counts[pattern] = pattern_counts.get(pattern, 0) + 1
-        
+
         return {
             "files_scanned": self.files_scanned,
             "total_findings": len(self.findings),
@@ -277,20 +275,20 @@ def main():
     print("  PII Scanner - Security Data Leak Detection")
     print("=" * 80)
     print("")
-    
+
     # Get directory to scan (default: current directory)
     scan_dir = sys.argv[1] if len(sys.argv) > 1 else "."
-    
+
     # Run scanner
     scanner = PIIScanner(scan_dir)
     scanner.scan_directory()
-    
+
     # Print findings
     scanner.print_findings()
-    
+
     # Generate summary
     summary = scanner.generate_summary()
-    
+
     if not summary["clean"]:
         print("Summary by pattern:")
         for pattern, count in sorted(
@@ -300,15 +298,15 @@ def main():
         ):
             print(f"  {pattern:30s}: {count:3d} occurrences")
         print("")
-    
+
     # Exit with appropriate code
     exit_code = 0 if summary["clean"] else 1
-    
+
     if exit_code == 0:
         print("✅ Security scan passed - no issues detected")
     else:
         print("❌ Security scan failed - please review and remediate findings")
-    
+
     print("")
     sys.exit(exit_code)
 

@@ -6,7 +6,6 @@ Update these values or provide via CLI arguments/environment variables.
 """
 
 import os
-from typing import Dict, Optional
 
 # Organization defaults - CUSTOMIZE THESE FOR YOUR ORG
 DEFAULT_ORGANIZATION = "your-org"
@@ -29,7 +28,7 @@ PLATFORM_SCRIPTS_PATHS = [
 
 # Module version requirements — customize for your org's modules
 # Format: "module-name": {"min": "X.Y.Z", "max": "X.Y.Z" or None}
-REQUIRED_VERSIONS: Dict[str, Dict[str, Optional[str]]] = {
+REQUIRED_VERSIONS: dict[str, dict[str, str | None]] = {
     "your-github-project-factory": {"min": "15.1.0", "max": None},
     "your-aws-project-factory": {"min": "5.5.2", "max": None},
 }

@@ -21,6 +21,9 @@ build/
 *.egg
 pip-log.txt
 pip-delete-this-directory.txt
+.coverage
+coverage.xml
+htmlcov/
 
 # Virtual environments
 venv/
