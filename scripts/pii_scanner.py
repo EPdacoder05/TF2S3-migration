@@ -26,7 +26,10 @@ PII_PATTERNS: dict[str, str] = {
     "Private Key": r'-----BEGIN (?:RSA |EC )?PRIVATE KEY-----',
     "Generic API Key": r'(?i)(?:api[_-]?key|apikey)\s*[:=]\s*["\']?\w{20,}',
     "Generic Secret": r'(?i)(?:secret|password|passwd|pwd)\s*[:=]\s*["\']?\S{8,}',
-    "IP Address (Private)": r'\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b',
+    "IP Address (Private)": (
+        r'\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}'
+        r'|192\.168\.\d{1,3}\.\d{1,3})\b'
+    ),
     "Email Address": r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
     "Slack Webhook": r'https://hooks\.slack\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[a-zA-Z0-9]+',
     "JWT Token": r'eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+',
@@ -241,7 +244,7 @@ class PIIScanner:
         # Print grouped findings
         for file_path, file_findings in sorted(findings_by_file.items()):
             print(f"📄 {file_path}")
-            for pattern, line_num, match, redacted in file_findings:
+            for pattern, line_num, _match, redacted in file_findings:
                 print(f"   Line {line_num:4d}: {pattern:25s} → {redacted}")
             print("")
 

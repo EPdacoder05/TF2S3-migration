@@ -6,9 +6,9 @@ class TestSanitizeLogMessage:
     """Test log message sanitization."""
 
     def test_redacts_aws_access_key(self):
-        msg = "Found key AKIAIOSFODNN7EXAMPLE in config"
+        msg = "Found key AKIAXXXXXXXXXXXXXXXX in config"
         result = utils.sanitize_log_message(msg)
-        assert "AKIAIOSFODNN7EXAMPLE" not in result
+        assert "AKIAXXXXXXXXXXXXXXXX" not in result
         assert "[REDACTED]" in result
 
     def test_redacts_github_pat(self):
